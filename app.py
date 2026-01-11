@@ -7,25 +7,45 @@ from datetime import datetime
 # --- AYARLAR ---
 ARAC_DOSYASI = "arac_randevulari.csv"
 KULLANICI_DOSYASI = "kullanicilar.csv"
-LOGO_DOSYASI = "logo.png"  # <-- Masaüstündeki resmin adı bu olmalı
+LOGO_DOSYASI = "logo.png"
 
 # Sayfa Ayarları
 st.set_page_config(page_title="Ex Motors", page_icon="🚗", layout="wide")
 
-# --- CSS İLE GÖRÜNÜM İYİLEŞTİRME ---
-st.markdown("""
-<style>
-    .stDataFrame { font-size: 1.1rem; }
-    .stButton button { width: 100%; border-radius: 10px; height: 3em; }
-    .css-1r6slb0 { border: 1px solid #ddd; padding: 10px; border-radius: 10px; margin-bottom: 10px; }
-</style>
-""", unsafe_allow_html=True)
+# --- CSS İLE GÖRÜNÜM VE TEMA FONKSİYONU ---
+def tema_uygula(koyu_mod):
+    if koyu_mod:
+        # KOYU MOD CSS (Dark Mode)
+        st.markdown("""
+        <style>
+            .stApp { background-color: #0E1117; color: #FAFAFA; }
+            [data-testid="stSidebar"] { background-color: #262730; }
+            .stDataFrame { background-color: #262730; }
+            .stTextInput > div > div > input { color: #ffffff; background-color: #262730; }
+            .stSelectbox > div > div > div { color: #ffffff; background-color: #262730; }
+            .stButton button { border-radius: 10px; height: 3em; width: 100%; border: 1px solid #444; }
+            .css-1r6slb0 { border: 1px solid #444; background-color: #1E1E1E; }
+        </style>
+        """, unsafe_allow_html=True)
+    else:
+        # AÇIK MOD CSS (Light Mode)
+        st.markdown("""
+        <style>
+            .stApp { background-color: #FFFFFF; color: #31333F; }
+            [data-testid="stSidebar"] { background-color: #F0F2F6; }
+            .stButton button { border-radius: 10px; height: 3em; width: 100%; border: 1px solid #ddd; }
+            .css-1r6slb0 { border: 1px solid #ddd; background-color: #F9F9F9; }
+        </style>
+        """, unsafe_allow_html=True)
 
 # --- DİL SÖZLÜĞÜ ---
 LANG = {
     "TR": {
         "login_title": "Ex Motors Giriş",
         "sidebar_title": "Ex Motors",
+        "dark_mode": "🌙 Koyu Mod", # YENİ
+        "light_mode": "☀️ Açık Mod", # YENİ
+        "theme_label": "Tema Ayarı", # YENİ
         "login_user": "Kullanıcı Adı",
         "login_pass": "Şifre",
         "login_btn": "Giriş Yap",
@@ -78,6 +98,9 @@ LANG = {
     "EN": {
         "login_title": "Ex Motors Login",
         "sidebar_title": "Ex Motors",
+        "dark_mode": "🌙 Dark Mode",
+        "light_mode": "☀️ Light Mode",
+        "theme_label": "Theme Settings",
         "login_user": "Username",
         "login_pass": "Password",
         "login_btn": "Login",
@@ -130,6 +153,9 @@ LANG = {
     "AL": {
         "login_title": "Hyrje Ex Motors",
         "sidebar_title": "Ex Motors",
+        "dark_mode": "🌙 Modaliteti i Errët",
+        "light_mode": "☀️ Modaliteti i Dritës",
+        "theme_label": "Cilësimet e Temës",
         "login_user": "Përdoruesi",
         "login_pass": "Fjalëkalimi",
         "login_btn": "Hyr",
@@ -202,9 +228,7 @@ def kullanici_yukle():
 def kullanici_kaydet(df):
     df.to_csv(KULLANICI_DOSYASI, index=False)
 
-# LOGO GÖSTERME FONKSİYONU (BÜYÜTÜLDÜ)
 def logo_goster(yer="sidebar"):
-    # Eğer logo.png dosyası varsa onu kullan, yoksa internetten araba simgesi çek
     varsayilan_logo = "https://cdn-icons-png.flaticon.com/512/295/295128.png"
     resim_kaynagi = varsayilan_logo
     
@@ -212,11 +236,9 @@ def logo_goster(yer="sidebar"):
         resim_kaynagi = LOGO_DOSYASI
     
     if yer == "sidebar":
-        # Yan menüdeki logo (300px yapıldı - BÜYÜDÜ)
-        st.sidebar.image(resim_kaynagi, width=300) 
+        st.sidebar.image(resim_kaynagi, width=200) # İdeal Boyut
     else:
-        # Giriş ekranındaki logo (600px yapıldı - KOCAMAN OLDU)
-        st.image(resim_kaynagi, width=600)
+        st.image(resim_kaynagi, width=300) # İdeal Boyut
 
 def render_mobile_cards(df, T):
     if df.empty:
@@ -248,11 +270,16 @@ if not st.session_state['giris_yapildi']:
     dil = st.selectbox("Language / Dil", ["TR", "EN", "AL"])
     T = LANG[dil]
     
+    # Giriş ekranında tema seçeneği (Üstte)
+    col_t1, col_t2 = st.columns([8, 2])
+    with col_t2:
+        mod = st.toggle(T["dark_mode"], value=True)
+        tema_uygula(mod)
+
     st.markdown("<br>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([1, 8, 1]) 
     
     with col2:
-        # LOGO BURAYA GELİYOR
         logo_goster(yer="main")
         st.title(T["login_title"])
         
@@ -278,7 +305,13 @@ else:
     T = LANG[secilen_dil_kodu]
     aktif_user = st.session_state['aktif_kullanici']
     
-    # MENÜ LOGOSU BURAYA GELİYOR
+    # --- TEMA AYARI (SOL MENÜ) ---
+    # Logodan önce tema ayarını koyuyoruz
+    st.sidebar.markdown(f"### {T['theme_label']}")
+    koyu_mod_aktif = st.sidebar.toggle(T["dark_mode"], value=True)
+    tema_uygula(koyu_mod_aktif)
+    st.sidebar.markdown("---")
+
     logo_goster(yer="sidebar")
     st.sidebar.title(T["sidebar_title"])
     st.sidebar.write(f"👤 **{aktif_user}**")
