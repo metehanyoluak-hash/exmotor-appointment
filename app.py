@@ -14,18 +14,15 @@ st.set_page_config(page_title="Ex Motors", page_icon="🚗", layout="wide")
 
 # --- GÜÇLÜ TEMA FONKSİYONU (CSS) ---
 def tema_uygula(koyu_mod):
-    # MENÜ TUŞLARINI BÜYÜTME KODU (HEM AÇIK HEM KAPALI HALİ)
+    # MENÜ TUŞLARINI BÜYÜTME KODU
     menu_buyutme_kodu = """
-    /* 1. Menü KAPALIYKEN görünen 'Aç' (>) tuşu */
     [data-testid="stSidebarCollapsedControl"] {
-        transform: scale(2.5) !important; /* 2.5 kat büyütür */
+        transform: scale(2.5) !important; 
         margin-left: 20px !important;
         margin-top: 10px !important;
     }
-    
-    /* 2. Menü AÇIKKEN görünen 'Kapat' (<<) tuşu - SİZİN İSTEDİĞİNİZ */
     section[data-testid="stSidebar"] button[kind="header"] {
-        transform: scale(2.5) !important; /* 2.5 kat büyütür */
+        transform: scale(2.5) !important; 
         margin-right: 20px !important;
         margin-top: 10px !important;
     }
@@ -96,7 +93,7 @@ LANG = {
         "new_title": "Yeni Araç Kaydı",
         "lbl_plate": "Plaka",
         "lbl_name": "Müşteri",
-        "lbl_phone": "Telefon",
+        "lbl_phone": "Telefon (Başında 0 olmadan)", # Uyarı eklendi
         "lbl_date": "Tarih",
         "lbl_time": "Saat",
         "lbl_type": "İşlem",
@@ -399,7 +396,22 @@ else:
         with st.form("randevu_formu"):
             plaka = st.text_input(T["lbl_plate"], placeholder="34 ABC 123").upper()
             musteri = st.text_input(T["lbl_name"])
-            tel = st.text_input(T["lbl_phone"])
+            
+            # --- DEĞİŞİKLİK: TELEFON İÇİN NUMARA KUTUSU ---
+            # value=None yaparak kutunun boş gelmesini sağlıyoruz
+            tel_input = st.number_input(T["lbl_phone"], min_value=0, step=1, format="%d", value=None)
+            
+            # Kaydederken stringe çeviriyoruz
+            if tel_input is not None:
+                # Başına 0 ekleme kontrolü (TR numaraları 10 hane girilirse 0 ekle)
+                tel_str = str(tel_input)
+                if len(tel_str) == 10:
+                    tel = "0" + tel_str
+                else:
+                    tel = tel_str
+            else:
+                tel = ""
+
             c1, c2 = st.columns(2)
             tarih = c1.date_input(T["lbl_date"])
             saat = c2.time_input(T["lbl_time"])
