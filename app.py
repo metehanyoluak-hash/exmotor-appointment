@@ -14,45 +14,63 @@ st.set_page_config(page_title="Ex Motors", page_icon="🚗", layout="wide")
 
 # --- GÜÇLÜ TEMA FONKSİYONU (CSS) ---
 def tema_uygula(koyu_mod):
+    # MENÜ TUŞLARINI BÜYÜTME KODU (HEM AÇIK HEM KAPALI HALİ)
+    menu_buyutme_kodu = """
+    /* 1. Menü KAPALIYKEN görünen 'Aç' (>) tuşu */
+    [data-testid="stSidebarCollapsedControl"] {
+        transform: scale(2.5) !important; /* 2.5 kat büyütür */
+        margin-left: 20px !important;
+        margin-top: 10px !important;
+    }
+    
+    /* 2. Menü AÇIKKEN görünen 'Kapat' (<<) tuşu - SİZİN İSTEDİĞİNİZ */
+    section[data-testid="stSidebar"] button[kind="header"] {
+        transform: scale(2.5) !important; /* 2.5 kat büyütür */
+        margin-right: 20px !important;
+        margin-top: 10px !important;
+    }
+    """
+
     if koyu_mod:
         # === KOYU MOD (DARK) ===
-        st.markdown("""
+        st.markdown(f"""
         <style>
-            .stApp { background-color: #0E1117; }
-            [data-testid="stSidebar"] { background-color: #262730; }
-            h1, h2, h3, h4, h5, h6, p, label, span, div, li { color: #FFFFFF !important; }
-            .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input {
+            {menu_buyutme_kodu}
+            .stApp {{ background-color: #0E1117; }}
+            [data-testid="stSidebar"] {{ background-color: #262730; }}
+            h1, h2, h3, h4, h5, h6, p, label, span, div, li {{ color: #FFFFFF !important; }}
+            .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input {{
                 color: #FFFFFF !important; background-color: #262730 !important; border-color: #444 !important;
-            }
-            .stSelectbox div[data-baseweb="select"] > div { color: #FFFFFF !important; background-color: #262730 !important; }
-            .stDataFrame { background-color: #262730; }
-            [data-testid="stDataFrameResizable"] div { color: #FFFFFF !important; }
-            .css-1r6slb0 { border: 1px solid #444; background-color: #1E1E1E; padding: 15px; border-radius: 10px; }
-            .stButton button { border: 1px solid #555; color: #FFFFFF !important; background-color: #262730; }
+            }}
+            .stSelectbox div[data-baseweb="select"] > div {{ color: #FFFFFF !important; background-color: #262730 !important; }}
+            .stDataFrame {{ background-color: #262730; }}
+            [data-testid="stDataFrameResizable"] div {{ color: #FFFFFF !important; }}
+            .css-1r6slb0 {{ border: 1px solid #444; background-color: #1E1E1E; padding: 15px; border-radius: 10px; }}
+            .stButton button {{ border: 1px solid #555; color: #FFFFFF !important; background-color: #262730; }}
         </style>
         """, unsafe_allow_html=True)
     else:
         # === AÇIK MOD (LIGHT) ===
-        st.markdown("""
+        st.markdown(f"""
         <style>
-            .stApp { background-color: #FFFFFF; }
-            [data-testid="stSidebar"] { background-color: #F0F2F6; }
-            h1, h2, h3, h4, h5, h6, p, label, span, div, li { color: #000000 !important; }
-            .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input {
+            {menu_buyutme_kodu}
+            .stApp {{ background-color: #FFFFFF; }}
+            [data-testid="stSidebar"] {{ background-color: #F0F2F6; }}
+            h1, h2, h3, h4, h5, h6, p, label, span, div, li {{ color: #000000 !important; }}
+            .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input {{
                 color: #000000 !important; background-color: #FFFFFF !important; border-color: #ccc !important;
-            }
-            .stSelectbox div[data-baseweb="select"] > div { color: #000000 !important; background-color: #FFFFFF !important; }
-            .stDataFrame { background-color: #FFFFFF; }
-            [data-testid="stDataFrameResizable"] div { color: #000000 !important; }
-            .css-1r6slb0 { border: 1px solid #ddd; background-color: #F9F9F9; padding: 15px; border-radius: 10px; }
-            .stButton button { border: 1px solid #ccc; color: #000000 !important; background-color: #ffffff; }
+            }}
+            .stSelectbox div[data-baseweb="select"] > div {{ color: #000000 !important; background-color: #FFFFFF !important; }}
+            .stDataFrame {{ background-color: #FFFFFF; }}
+            [data-testid="stDataFrameResizable"] div {{ color: #000000 !important; }}
+            .css-1r6slb0 {{ border: 1px solid #ddd; background-color: #F9F9F9; padding: 15px; border-radius: 10px; }}
+            .stButton button {{ border: 1px solid #ccc; color: #000000 !important; background-color: #ffffff; }}
         </style>
         """, unsafe_allow_html=True)
 
 # --- DİL SÖZLÜĞÜ ---
 LANG = {
     "TR": {
-        "login_title": "Ex Motors Giriş",
         "sidebar_title": "Ex Motors",
         "dark_mode": "🌙 Koyu Mod",
         "light_mode": "☀️ Açık Mod",
@@ -107,7 +125,6 @@ LANG = {
         "msg_pass_updated": "Güncellendi."
     },
     "EN": {
-        "login_title": "Ex Motors Login",
         "sidebar_title": "Ex Motors",
         "dark_mode": "🌙 Dark Mode",
         "light_mode": "☀️ Light Mode",
@@ -162,7 +179,6 @@ LANG = {
         "msg_pass_updated": "Updated."
     },
     "AL": {
-        "login_title": "Hyrje Ex Motors",
         "sidebar_title": "Ex Motors",
         "dark_mode": "🌙 Modaliteti i Errët",
         "light_mode": "☀️ Modaliteti i Dritës",
@@ -302,7 +318,7 @@ if not st.session_state['giris_yapildi']:
     
     with col2:
         logo_goster(yer="main")
-        st.title(T["login_title"])
+        st.markdown("<br>", unsafe_allow_html=True)
         
         user_input = st.text_input(T["login_user"])
         pass_input = st.text_input(T["login_pass"], type="password")
@@ -345,7 +361,6 @@ else:
     secim = st.sidebar.radio("Menu", menu_listesi)
     
     # === 3. EN ALT: TEMA AYARLARI ===
-    # Araya boşluk koyarak aşağı itiyoruz
     st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
     st.sidebar.markdown("---")
     st.sidebar.markdown(f"### {T['theme_label']}")
