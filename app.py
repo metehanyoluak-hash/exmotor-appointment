@@ -14,8 +14,9 @@ st.set_page_config(page_title="Ex Motors", page_icon="🚗", layout="wide")
 
 # --- GÜÇLÜ TEMA FONKSİYONU (CSS) ---
 def tema_uygula(koyu_mod):
-    # MENÜ TUŞLARINI BÜYÜTME KODU
-    menu_buyutme_kodu = """
+    # MENÜ TUŞLARINI BÜYÜTME VE LOGO TIKLAMAYI ENGELLEME KODU
+    ozel_css = """
+    /* 1. Menü Aç/Kapa Tuşlarını Büyüt */
     [data-testid="stSidebarCollapsedControl"] {
         transform: scale(2.5) !important; 
         margin-left: 20px !important;
@@ -26,13 +27,18 @@ def tema_uygula(koyu_mod):
         margin-right: 20px !important;
         margin-top: 10px !important;
     }
+    
+    /* 2. RESİMLERE TIKLAMAYI ENGELLE (Logoya tıklayınca büyümesin) */
+    [data-testid="stImage"] {
+        pointer-events: none;
+    }
     """
 
     if koyu_mod:
         # === KOYU MOD (DARK) ===
         st.markdown(f"""
         <style>
-            {menu_buyutme_kodu}
+            {ozel_css}
             .stApp {{ background-color: #0E1117; }}
             [data-testid="stSidebar"] {{ background-color: #262730; }}
             h1, h2, h3, h4, h5, h6, p, label, span, div, li {{ color: #FFFFFF !important; }}
@@ -50,7 +56,7 @@ def tema_uygula(koyu_mod):
         # === AÇIK MOD (LIGHT) ===
         st.markdown(f"""
         <style>
-            {menu_buyutme_kodu}
+            {ozel_css}
             .stApp {{ background-color: #FFFFFF; }}
             [data-testid="stSidebar"] {{ background-color: #F0F2F6; }}
             h1, h2, h3, h4, h5, h6, p, label, span, div, li {{ color: #000000 !important; }}
@@ -72,6 +78,7 @@ LANG = {
         "dark_mode": "🌙 Koyu Mod",
         "light_mode": "☀️ Açık Mod",
         "theme_label": "Görünüm Ayarları",
+        "lang_label": "Dil Seçimi", # YENİ
         "login_user": "Kullanıcı Adı",
         "login_pass": "Şifre",
         "login_btn": "Giriş Yap",
@@ -93,7 +100,7 @@ LANG = {
         "new_title": "Yeni Araç Kaydı",
         "lbl_plate": "Plaka",
         "lbl_name": "Müşteri",
-        "lbl_phone": "Telefon (Başında 0 olmadan)", # Uyarı eklendi
+        "lbl_phone": "Telefon (Başında 0 olmadan)",
         "lbl_date": "Tarih",
         "lbl_time": "Saat",
         "lbl_type": "İşlem",
@@ -126,6 +133,7 @@ LANG = {
         "dark_mode": "🌙 Dark Mode",
         "light_mode": "☀️ Light Mode",
         "theme_label": "Appearance",
+        "lang_label": "Language",
         "login_user": "Username",
         "login_pass": "Password",
         "login_btn": "Login",
@@ -180,6 +188,7 @@ LANG = {
         "dark_mode": "🌙 Modaliteti i Errët",
         "light_mode": "☀️ Modaliteti i Dritës",
         "theme_label": "Pamja",
+        "lang_label": "Gjuha",
         "login_user": "Përdoruesi",
         "login_pass": "Fjalëkalimi",
         "login_btn": "Hyr",
@@ -297,13 +306,17 @@ if 'giris_yapildi' not in st.session_state:
     st.session_state['giris_yapildi'] = False
 if 'aktif_kullanici' not in st.session_state:
     st.session_state['aktif_kullanici'] = ""
+if 'dil_kodu' not in st.session_state:
+    st.session_state['dil_kodu'] = "TR"
 
 # ==========================================
 # 🔐 GİRİŞ EKRANI
 # ==========================================
 if not st.session_state['giris_yapildi']:
-    dil = st.selectbox("Language / Dil", ["TR", "EN", "AL"])
-    T = LANG[dil]
+    # Giriş ekranında dil seçimi - session state'i günceller
+    secilen_dil = st.selectbox("Language / Dil", ["TR", "EN", "AL"], index=["TR", "EN", "AL"].index(st.session_state['dil_kodu']))
+    st.session_state['dil_kodu'] = secilen_dil
+    T = LANG[st.session_state['dil_kodu']]
     
     col_t1, col_t2 = st.columns([8, 2])
     with col_t2:
@@ -326,7 +339,7 @@ if not st.session_state['giris_yapildi']:
             if not kullanici_bulundu.empty:
                 st.session_state['giris_yapildi'] = True
                 st.session_state['aktif_kullanici'] = user_input
-                st.session_state['dil_kodu'] = dil
+                # Dil kodu zaten session state'te
                 st.rerun()
             else:
                 st.error(T["login_error"])
@@ -335,8 +348,8 @@ if not st.session_state['giris_yapildi']:
 # 🚗 ANA UYGULAMA
 # ==========================================
 else:
-    secilen_dil_kodu = st.session_state.get('dil_kodu', "TR")
-    T = LANG[secilen_dil_kodu]
+    # Aktif dili al
+    T = LANG[st.session_state['dil_kodu']]
     aktif_user = st.session_state['aktif_kullanici']
     
     # === 1. EN ÜST: LOGO VE KULLANICI BİLGİSİ ===
@@ -357,9 +370,24 @@ else:
         
     secim = st.sidebar.radio("Menu", menu_listesi)
     
-    # === 3. EN ALT: TEMA AYARLARI ===
-    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
+    # === 3. EN ALT: DİL VE TEMA AYARLARI ===
+    st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
     st.sidebar.markdown("---")
+    
+    # -- DİL SEÇİMİ (BURAYA EKLENDİ) --
+    st.sidebar.markdown(f"### {T['lang_label']}")
+    # Mevcut dili seçili getir
+    mevcut_index = ["TR", "EN", "AL"].index(st.session_state['dil_kodu'])
+    yeni_dil = st.sidebar.selectbox("Dil", ["TR", "EN", "AL"], index=mevcut_index, label_visibility="collapsed")
+    
+    # Eğer dil değişirse sayfayı yenile
+    if yeni_dil != st.session_state['dil_kodu']:
+        st.session_state['dil_kodu'] = yeni_dil
+        st.rerun()
+        
+    st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+    # -- TEMA AYARI (DİLİN ALTINDA) --
     st.sidebar.markdown(f"### {T['theme_label']}")
     koyu_mod_aktif = st.sidebar.toggle(T["dark_mode"], value=True)
     tema_uygula(koyu_mod_aktif)
@@ -397,13 +425,9 @@ else:
             plaka = st.text_input(T["lbl_plate"], placeholder="34 ABC 123").upper()
             musteri = st.text_input(T["lbl_name"])
             
-            # --- DEĞİŞİKLİK: TELEFON İÇİN NUMARA KUTUSU ---
-            # value=None yaparak kutunun boş gelmesini sağlıyoruz
+            # Telefon için sayısal klavye (V17 korundu)
             tel_input = st.number_input(T["lbl_phone"], min_value=0, step=1, format="%d", value=None)
-            
-            # Kaydederken stringe çeviriyoruz
             if tel_input is not None:
-                # Başına 0 ekleme kontrolü (TR numaraları 10 hane girilirse 0 ekle)
                 tel_str = str(tel_input)
                 if len(tel_str) == 10:
                     tel = "0" + tel_str
