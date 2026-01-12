@@ -12,29 +12,40 @@ LOGO_DOSYASI = "logo.png"
 # Sayfa Ayarları
 st.set_page_config(page_title="Ex Motors", page_icon="🚗", layout="wide")
 
-# --- CSS İLE GÖRÜNÜM VE TEMA FONKSİYONU ---
+# --- GÜÇLÜ TEMA FONKSİYONU (CSS) ---
 def tema_uygula(koyu_mod):
     if koyu_mod:
-        # KOYU MOD CSS (Dark Mode)
+        # === KOYU MOD (DARK) ===
         st.markdown("""
         <style>
-            .stApp { background-color: #0E1117; color: #FAFAFA; }
+            .stApp { background-color: #0E1117; }
             [data-testid="stSidebar"] { background-color: #262730; }
+            h1, h2, h3, h4, h5, h6, p, label, span, div, li { color: #FFFFFF !important; }
+            .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input {
+                color: #FFFFFF !important; background-color: #262730 !important; border-color: #444 !important;
+            }
+            .stSelectbox div[data-baseweb="select"] > div { color: #FFFFFF !important; background-color: #262730 !important; }
             .stDataFrame { background-color: #262730; }
-            .stTextInput > div > div > input { color: #ffffff; background-color: #262730; }
-            .stSelectbox > div > div > div { color: #ffffff; background-color: #262730; }
-            .stButton button { border-radius: 10px; height: 3em; width: 100%; border: 1px solid #444; }
-            .css-1r6slb0 { border: 1px solid #444; background-color: #1E1E1E; }
+            [data-testid="stDataFrameResizable"] div { color: #FFFFFF !important; }
+            .css-1r6slb0 { border: 1px solid #444; background-color: #1E1E1E; padding: 15px; border-radius: 10px; }
+            .stButton button { border: 1px solid #555; color: #FFFFFF !important; background-color: #262730; }
         </style>
         """, unsafe_allow_html=True)
     else:
-        # AÇIK MOD CSS (Light Mode)
+        # === AÇIK MOD (LIGHT) ===
         st.markdown("""
         <style>
-            .stApp { background-color: #FFFFFF; color: #31333F; }
+            .stApp { background-color: #FFFFFF; }
             [data-testid="stSidebar"] { background-color: #F0F2F6; }
-            .stButton button { border-radius: 10px; height: 3em; width: 100%; border: 1px solid #ddd; }
-            .css-1r6slb0 { border: 1px solid #ddd; background-color: #F9F9F9; }
+            h1, h2, h3, h4, h5, h6, p, label, span, div, li { color: #000000 !important; }
+            .stTextInput input, .stNumberInput input, .stDateInput input, .stTimeInput input {
+                color: #000000 !important; background-color: #FFFFFF !important; border-color: #ccc !important;
+            }
+            .stSelectbox div[data-baseweb="select"] > div { color: #000000 !important; background-color: #FFFFFF !important; }
+            .stDataFrame { background-color: #FFFFFF; }
+            [data-testid="stDataFrameResizable"] div { color: #000000 !important; }
+            .css-1r6slb0 { border: 1px solid #ddd; background-color: #F9F9F9; padding: 15px; border-radius: 10px; }
+            .stButton button { border: 1px solid #ccc; color: #000000 !important; background-color: #ffffff; }
         </style>
         """, unsafe_allow_html=True)
 
@@ -43,14 +54,14 @@ LANG = {
     "TR": {
         "login_title": "Ex Motors Giriş",
         "sidebar_title": "Ex Motors",
-        "dark_mode": "🌙 Koyu Mod", # YENİ
-        "light_mode": "☀️ Açık Mod", # YENİ
-        "theme_label": "Tema Ayarı", # YENİ
+        "dark_mode": "🌙 Koyu Mod",
+        "light_mode": "☀️ Açık Mod",
+        "theme_label": "Görünüm Ayarları",
         "login_user": "Kullanıcı Adı",
         "login_pass": "Şifre",
         "login_btn": "Giriş Yap",
         "login_error": "Hatalı giriş!",
-        "logout": "Çıkış",
+        "logout": "Çıkış Yap",
         "nav_dashboard": "🏠 Ana Sayfa",
         "nav_waiting": "⏳ Bekleyenler",
         "nav_new": "➕ Yeni Ekle",
@@ -100,7 +111,7 @@ LANG = {
         "sidebar_title": "Ex Motors",
         "dark_mode": "🌙 Dark Mode",
         "light_mode": "☀️ Light Mode",
-        "theme_label": "Theme Settings",
+        "theme_label": "Appearance",
         "login_user": "Username",
         "login_pass": "Password",
         "login_btn": "Login",
@@ -155,7 +166,7 @@ LANG = {
         "sidebar_title": "Ex Motors",
         "dark_mode": "🌙 Modaliteti i Errët",
         "light_mode": "☀️ Modaliteti i Dritës",
-        "theme_label": "Cilësimet e Temës",
+        "theme_label": "Pamja",
         "login_user": "Përdoruesi",
         "login_pass": "Fjalëkalimi",
         "login_btn": "Hyr",
@@ -236,26 +247,37 @@ def logo_goster(yer="sidebar"):
         resim_kaynagi = LOGO_DOSYASI
     
     if yer == "sidebar":
-        st.sidebar.image(resim_kaynagi, width=200) # İdeal Boyut
+        st.sidebar.image(resim_kaynagi, width=200) 
     else:
-        st.image(resim_kaynagi, width=300) # İdeal Boyut
+        st.image(resim_kaynagi, width=300) 
 
-def render_mobile_cards(df, T):
+def render_mobile_cards(df, T, is_dark):
     if df.empty:
         st.info("Liste boş.")
         return
+    
+    border_color = "#444" if is_dark else "#ddd"
+    
     for index, row in df.iterrows():
-        with st.container(border=True):
-            c1, c2 = st.columns([2, 1])
-            c1.markdown(f"### 🚗 {row['Plaka']}")
-            durum_renk = "blue"
-            if row['Durum'] in ["Tamamlandı", "Completed", "Përfunduar"]: durum_renk = "green"
-            elif row['Durum'] in ["İptal", "Cancelled", "Anuluar"]: durum_renk = "red"
-            elif row['Durum'] in ["İşlemde", "In Progress", "Në Proces"]: durum_renk = "orange"
-            c2.markdown(f":{durum_renk}[**{row['Durum']}**]")
-            st.write(f"👤 {row['Müşteri']} | 📞 {row['Telefon']}")
-            st.write(f"🔧 {row['İşlem']} | 💰 {row['Ücret']}")
-            st.caption(f"📅 {row['Tarih']} ⏰ {row['Saat']}")
+        durum_renk = "blue"
+        if row['Durum'] in ["Tamamlandı", "Completed", "Përfunduar"]: durum_renk = "green"
+        elif row['Durum'] in ["İptal", "Cancelled", "Anuluar"]: durum_renk = "red"
+        elif row['Durum'] in ["İşlemde", "In Progress", "Në Proces"]: durum_renk = "orange"
+        
+        with st.container():
+            st.markdown(f"""
+            <div class="css-1r6slb0">
+                <div style="display: flex; justify-content: space-between;">
+                    <h3 style="margin:0;">🚗 {row['Plaka']}</h3>
+                    <b style="color:{durum_renk};">{row['Durum']}</b>
+                </div>
+                <hr style="margin: 5px 0; border-color: {border_color};">
+                <p>👤 {row['Müşteri']} | 📞 {row['Telefon']}</p>
+                <p>🔧 {row['İşlem']} | 💰 {row['Ücret']}</p>
+                <small>📅 {row['Tarih']} ⏰ {row['Saat']}</small>
+            </div>
+            """, unsafe_allow_html=True)
+        st.write("") 
 
 # --- SESSION STATE ---
 if 'giris_yapildi' not in st.session_state:
@@ -270,7 +292,6 @@ if not st.session_state['giris_yapildi']:
     dil = st.selectbox("Language / Dil", ["TR", "EN", "AL"])
     T = LANG[dil]
     
-    # Giriş ekranında tema seçeneği (Üstte)
     col_t1, col_t2 = st.columns([8, 2])
     with col_t2:
         mod = st.toggle(T["dark_mode"], value=True)
@@ -305,16 +326,9 @@ else:
     T = LANG[secilen_dil_kodu]
     aktif_user = st.session_state['aktif_kullanici']
     
-    # --- TEMA AYARI (SOL MENÜ) ---
-    # Logodan önce tema ayarını koyuyoruz
-    st.sidebar.markdown(f"### {T['theme_label']}")
-    koyu_mod_aktif = st.sidebar.toggle(T["dark_mode"], value=True)
-    tema_uygula(koyu_mod_aktif)
-    st.sidebar.markdown("---")
-
+    # === 1. EN ÜST: LOGO VE KULLANICI BİLGİSİ ===
     logo_goster(yer="sidebar")
-    st.sidebar.title(T["sidebar_title"])
-    st.sidebar.write(f"👤 **{aktif_user}**")
+    st.sidebar.markdown(f"**👤 {aktif_user}**")
     
     if st.sidebar.button(f"🚪 {T['logout']}"):
         st.session_state['giris_yapildi'] = False
@@ -323,11 +337,21 @@ else:
         
     st.sidebar.markdown("---")
     
+    # === 2. ORTA: MENÜ ===
     menu_listesi = [T["nav_dashboard"], T["nav_waiting"], T["nav_new"], T["nav_list"]]
     if aktif_user == "admin":
         menu_listesi.append(T["nav_users"])
         
     secim = st.sidebar.radio("Menu", menu_listesi)
+    
+    # === 3. EN ALT: TEMA AYARLARI ===
+    # Araya boşluk koyarak aşağı itiyoruz
+    st.sidebar.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.sidebar.markdown("---")
+    st.sidebar.markdown(f"### {T['theme_label']}")
+    koyu_mod_aktif = st.sidebar.toggle(T["dark_mode"], value=True)
+    tema_uygula(koyu_mod_aktif)
+
     df = veri_yukle()
 
     # --- 1. DASHBOARD ---
@@ -350,7 +374,7 @@ else:
             st.success("✅")
         else:
             if gorunum == T["view_card"]:
-                render_mobile_cards(bekleyen_df, T)
+                render_mobile_cards(bekleyen_df, T, koyu_mod_aktif)
             else:
                 st.dataframe(bekleyen_df, use_container_width=True, hide_index=True)
 
@@ -408,14 +432,14 @@ else:
                         veri_kaydet(df)
                         st.rerun()
                 if gorunum == T["view_card"]:
-                    render_mobile_cards(aktif_df, T)
+                    render_mobile_cards(aktif_df, T, koyu_mod_aktif)
                 else:
                     st.dataframe(aktif_df, use_container_width=True, hide_index=True)
             else:
                 st.info("---")
         with tab2:
             if gorunum == T["view_card"]:
-                render_mobile_cards(gecmis_df, T)
+                render_mobile_cards(gecmis_df, T, koyu_mod_aktif)
             else:
                 st.dataframe(gecmis_df, use_container_width=True, hide_index=True)
 
